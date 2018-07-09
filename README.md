@@ -5,3 +5,4 @@
 1. Persistence
 1. Keyloggers
 1. Stealth
+1. Handlers
