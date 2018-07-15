@@ -7,3 +7,4 @@
 1. Stealth
 1. Handlers
 1. Lateral Movement
+1. Situational Awareness
