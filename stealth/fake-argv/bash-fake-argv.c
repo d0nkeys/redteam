@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
   int offset = 0;
   for (int i = 1; i < argc; i++) {
     int len = strlen(argv[i]);
-    strncpy(&cmd[offset], argv[i], len);
+    strncpy(&cmd[offset], argv[i], 10000);
     cmd[offset + len] = (char)0x20;
     offset += len + 1;
   }
