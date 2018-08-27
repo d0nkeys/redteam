@@ -113,14 +113,6 @@ if { $PORT > 0 && ($LISTEN == true || $ADDR != "0.0.0.0") } {
 					set ROWS [exec tput lines]
 					set COLS [exec tput cols]
 					puts "\[\033\[92m+\033\[0m\] python found"
-					expect {
-						"$ " {
-						}
-						"# " {
-						}
-						"% " {
-						}
-					}
 					send \x1A
 					puts "\[\033\[94m*\033\[0m\] Setting terminal"
 					expect ":"
