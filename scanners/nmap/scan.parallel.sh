@@ -7,11 +7,11 @@ done
 
 echo "Starting TCP Scan"
 
-parallel 'nmap -A -p- --reason -T4 -sS --script=safe,vuln -oA {}/{}.tcp {}' ::: $@ &
+parallel 'nmap -A -p- --reason -T4 -sS --script "(default or safe or vuln) and not broadcast" -oA {}/{}.tcp {}' ::: $@ &
 
 echo "Starting UDP Scan (top 100 ports)"
 
-parallel 'nmap -sU -sV -T4 --top-ports 100 --script=safe,vuln -oA {}/{}.udp {}' ::: $@ &
+parallel 'nmap -sU -sV -T4 --top-ports 100 --script "(default or safe or vuln) and not broadcast" -oA {}/{}.udp {}' ::: $@ &
 
 wait
 
