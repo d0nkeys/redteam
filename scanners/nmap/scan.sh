@@ -8,11 +8,11 @@ do
 
   echo "Starting TCP Scan for $ip"
 
-  nmap -A -p- --reason -T4 -sS --script=safe,vuln -oA $ip/$ip.tcp $ip &
+  nmap -A -p- --reason -T4 -sS --script "(default or safe or vuln) and not broadcast" -oA $ip/$ip.tcp $ip &
 
   echo "Starting UDP Scan for $ip"
 
-  nmap -sU -sV -T4 --top-ports 100 --script=safe,vuln -oA $ip/$ip.udp $ip &
+  nmap -sU -sV -T4 --top-ports 100 --script "(default or safe or vuln) and not broadcast" -oA $ip/$ip.udp $ip &
 done
 
 wait
