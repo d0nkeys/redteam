@@ -2,7 +2,7 @@
 
 require 'winrm-fs'
 
-# Author: Alamot
+# Author: Alamot, Lupman
 # To upload a file type: UPLOAD local_path remote_path
 # e.g.: PS> UPLOAD myfile.txt C:\temp\myfile.txt
 
