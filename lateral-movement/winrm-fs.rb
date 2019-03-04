@@ -52,9 +52,9 @@ conn.shell(:powershell) do | shell |
 
             if command.start_with?('DOWNLOAD') then
                 download_command = command.tokenize
-                dest = upload_command[2]
+                dest = download_command[2]
                 if not dest then
-                    dest = upload_command[1].split('\\')[-1]
+                    dest = download_command[1].split('\\')[-1]
                 end
                 puts("Downloading " + download_command[1] + " to " + dest)
                 file_manager.download(download_command[1], dest) do | bytes_copied, total_bytes, remote_path, local_path |
