@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 require 'winrm-fs'
+require 'tty-reader'
 
 # Author: Alamot, Lupman
 # To upload a file type: UPLOAD local_path remote_path
@@ -26,14 +27,21 @@ class String
     end
 end
 
+reader = TTY::Reader.new
+
+reader.on(:keyctrl_x) { puts ""; puts "Exiting..."; exit }
+
 command=""
 
 conn.shell(:powershell) do | shell |
     until command == "exit\n" do
         begin
-            output = shell.run("-join($id,'PS ',$(whoami),'@',$env:computername,' ',$pwd,'> ')")
-            print(output.output.chomp)
-            command = gets
+            #output = shell.run("-join($id,'PS ',$(whoami),'@',$env:computername,' ',$((gi $pwd).Name),'> ')")
+            #output = shell.run("-join($id,'PS ',$((gi $pwd)),'> ')")
+            output = shell.run("-join($id,'PS ',$pwd,'> ')")
+            #print(output.output.chomp)
+            #command = gets
+            command = reader.read_line(output.output.chomp)
 
             if command.start_with?('UPLOAD') then
                 upload_command = command.tokenize
