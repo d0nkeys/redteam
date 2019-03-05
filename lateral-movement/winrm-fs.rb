@@ -5,6 +5,7 @@ require 'tty-reader'
 require 'optparse'
 
 # Author: Alamot, Lupman
+# winrm-fs.rb -h 127.0.0.1 -U user -P password
 # To upload a file type: UPLOAD local_path remote_path
 # e.g.: PS> UPLOAD myfile.txt C:\temp\myfile.txt
 # e.g.: PS> DOWNLOAD C:\temp\myfile.txt myfile.txt
