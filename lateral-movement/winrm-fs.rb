@@ -121,7 +121,6 @@ conn.shell(:powershell) do | shell |
                 dest = download_command[2]
                 if not dest then
                     dest = download_command[1].split('\\')[-1]
-                    #dest = Dir.pwd + "/" + dest
                 end
 
                 puts("Downloading " + src + " to " + dest)
