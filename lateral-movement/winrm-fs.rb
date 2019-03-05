@@ -86,22 +86,14 @@ command = ""
 conn.shell(:powershell) do | shell |
     until command == "exit\n" do
         begin
-            #output = shell.run("-join($id,'PS ',$(whoami),'@',$env:computername,' ',$((gi $pwd).Name),'> ')")
-            #output = shell.run("-join($id,'PS ',$((gi $pwd)),'> ')")
-            output = shell.run("-join($id,'PS ',$pwd,'> ')")
-            #print(output.output.chomp)
-            #command = gets
+            output = shell.run("-join($id,'PS ',$(whoami),'@',$env:computername,' ',$pwd,'> ')")
             command = reader.read_line(output.output.chomp)
 
             if command.start_with?('UPLOAD') then
                 upload_command = command.tokenize
-
-                src = upload_command[1]
-                #if not src.index '/' then
-                #    src = Dir.pwd + "/" + src
-                #end
-                
+                src = upload_command[1]                
                 dest = upload_command[2]
+
                 if not dest then
                     dest = upload_command[1].split('/')[-1]
                 end
