@@ -1,4 +1,4 @@
-# RedTeam Scripts by SnadoTeam
+# RedTeam Scripts by d0nkeys
 
 ## Categories
 
