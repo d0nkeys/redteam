@@ -17,10 +17,10 @@ OptionParser.new do |opts|
     opts.banner = "Usage: #{$0} [options]"
 
     opts.on('-h', '--host HOST', 'Host address') { |v| options[:host] = v }
-    opts.on('-p', '--port PORT', Integer, 'Host port') { |v| options[:port] = v }
+    opts.on('-P', '--port PORT', Integer, 'Host port') { |v| options[:port] = v }
     opts.on(nil, '--ssl', 'HTTPS protocol') { |v| options[:ssl] = v }
-    opts.on('-U', '--user USERNAME', 'Username') { |v| options[:username] = v }
-    opts.on('-P', '--password PASSWORD', 'Password') { |v| options[:password] = v }
+    opts.on('-u', '--user USERNAME', 'Username') { |v| options[:username] = v }
+    opts.on('-p', '--password PASSWORD', 'Password') { |v| options[:password] = v }
     opts.on(nil, '--help', 'Display this screen') do
         puts opts
         exit
