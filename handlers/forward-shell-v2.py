@@ -144,7 +144,7 @@ while True:
     elif cmd.startswith(":upload "):
         splitted = cmd.split(" ")
         if len(splitted) < 2:
-            print("[-] Usage: upload <src> [dst]")
+            print("[?] :upload <src> [dst]")
         else:
             src = splitted[1]
             dst = splitted[2] if len(splitted)>2 else splitted[1].split('/')[-1]
@@ -160,7 +160,7 @@ while True:
     elif cmd.startswith(":download "):
         splitted = cmd.split(" ")
         if len(splitted) < 2:
-            print("[-] Usage: download <src> [dst]")
+            print("[?] :download <src> [dst]")
         else:
             src = splitted[1]
             dst = splitted[2] if len(splitted)>2 else splitted[1].split('/')[-1]
