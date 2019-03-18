@@ -141,16 +141,13 @@ while True:
     elif cmd == "exit":
         S.WriteCmd(f"rm -rf {S.pwd}; exit")
         sys.exit(0)
-    elif cmd.startswith(":upload"):
+    elif cmd.startswith(":upload "):
         splitted = cmd.split(" ")
         if len(splitted) < 2:
             print("[-] Usage: upload <src> [dst]")
         else:
             src = splitted[1]
-            try:
-                dst = splitted[2]
-            except:
-                dst = splitted[1].replace('/','_')
+            dst = splitted[2] if len(splitted>2) else splitted[1].split('/')[-1]
             fd = open(src, 'rb')
             while True:
                 data = fd.read(1024)
@@ -160,16 +157,13 @@ while True:
                 S.WriteCmd(f"echo -n {datab64} | python -m base64 -d >> {dst}")
                 print(f"[?] Uploading: {src} -> {dst}")
             print(f"[+] Uploaded: {src} -> {dst}")
-    elif cmd.startswith(":download"):
+    elif cmd.startswith(":download "):
         splitted = cmd.split(" ")
         if len(splitted) < 2:
             print("[-] Usage: download <src> [dst]")
         else:
             src = splitted[1]
-            try:
-                dst = splitted[2]
-            except:
-                dst = splitted[1].replace('/','_')
+            dst = splitted[2] if len(splitted>2) else splitted[1].split('/')[-1]
             i = 0
             fd = open(dst, 'wb', buffering=0)
             while True:
