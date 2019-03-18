@@ -147,7 +147,7 @@ while True:
             print("[-] Usage: upload <src> [dst]")
         else:
             src = splitted[1]
-            dst = splitted[2] if len(splitted>2) else splitted[1].split('/')[-1]
+            dst = splitted[2] if len(splitted)>2 else splitted[1].split('/')[-1]
             fd = open(src, 'rb')
             while True:
                 data = fd.read(1024)
@@ -163,7 +163,7 @@ while True:
             print("[-] Usage: download <src> [dst]")
         else:
             src = splitted[1]
-            dst = splitted[2] if len(splitted>2) else splitted[1].split('/')[-1]
+            dst = splitted[2] if len(splitted)>2 else splitted[1].split('/')[-1]
             i = 0
             fd = open(dst, 'wb', buffering=0)
             while True:
