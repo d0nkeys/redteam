@@ -5,7 +5,7 @@ require 'tty-reader'
 require 'optparse'
 
 # Author: Alamot, Lupman
-# winrm-fs.rb -h 127.0.0.1 -U user -P password
+# winrm-fs.rb -h 127.0.0.1 -u user -p password
 # To upload a file type: UPLOAD local_path remote_path
 # e.g.: PS> UPLOAD myfile.txt C:\temp\myfile.txt
 # e.g.: PS> DOWNLOAD C:\temp\myfile.txt myfile.txt
@@ -89,7 +89,7 @@ conn.shell(:powershell) do | shell |
             output = shell.run("-join($id,'PS ',$(whoami),'@',$env:computername,' ',$pwd,'> ')")
             command = reader.read_line(output.output.chomp)
 
-            if command.start_with?('UPLOAD') then
+            if command.start_with?('UPLOAD ') then
                 upload_command = command.tokenize
                 src = upload_command[1]                
                 dest = upload_command[2]
@@ -109,7 +109,7 @@ conn.shell(:powershell) do | shell |
                 command = "echo OK`n"
             end
 
-            if command.start_with?('DOWNLOAD') then
+            if command.start_with?('DOWNLOAD ') then
                 download_command = command.tokenize
                 
                 src = download_command[1]
