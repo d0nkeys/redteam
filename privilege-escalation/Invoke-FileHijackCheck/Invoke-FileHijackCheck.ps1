@@ -128,7 +128,7 @@ Invoke-FileHijackCheck .\Logfile.csv
 Analyze CSV file Logfile.csv in the current directory
 
 #>
-
+    [CMDLetBinding()]
     Param(
         [Parameter(Position = 0, Mandatory = $True, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
         [String]
@@ -136,7 +136,7 @@ Analyze CSV file Logfile.csv in the current directory
         $Csv,
 
         [switch]
-        $ShowOnlyVulnerable = $false
+        $ShowOnlyVulnerable
     )
 
     $paths = type $Csv | convertfrom-csv | Sort-Object -prop path -unique
@@ -157,7 +157,7 @@ Analyze CSV file Logfile.csv in the current directory
                 $res2 = $(CheckDirectory $user $parent)
                 if ($res2 -ne 0) {
                     if (Test-FileOpenLock $path.Path) {
-                        if (!$ShowOnlyVulnerable) {
+                        if (-not $ShowOnlyVulnerable) {
                             write-host -nonewline $user " => " $path.Path
                             write-host -ForegroundColor green " [LOCKED]"
                         }
@@ -165,7 +165,6 @@ Analyze CSV file Logfile.csv in the current directory
                         write-host -nonewline $user " => " $path.Path
                         write-host -ForegroundColor red " [VULNERABLE!]"
                     }
-                
                 }
             }
         }
