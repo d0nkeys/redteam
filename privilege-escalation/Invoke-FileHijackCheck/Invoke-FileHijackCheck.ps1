@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference= 'silentlycontinue'
+$ErrorActionPreference= 'silentlycontinue'
 #$ErrorActionPreference= 'continue'
 
 # https://stackoverflow.com/a/24992975
@@ -133,7 +133,10 @@ Analyze CSV file Logfile.csv in the current directory
         [Parameter(Position = 0, Mandatory = $True, ValueFromPipeline = $True, ValueFromPipelineByPropertyName = $True)]
         [String]
         [ValidateNotNullOrEmpty()]
-        $Csv
+        $Csv,
+
+        [switch]
+        $ShowOnlyVulnerable = $false
     )
 
     $paths = type $Csv | convertfrom-csv | Sort-Object -prop path -unique
@@ -153,10 +156,13 @@ Analyze CSV file Logfile.csv in the current directory
                 $parent = Split-Path -path $path.Path
                 $res2 = $(CheckDirectory $user $parent)
                 if ($res2 -ne 0) {
-                    write-host -nonewline $user " => " $path.Path
                     if (Test-FileOpenLock $path.Path) {
-                        write-host -ForegroundColor green " [LOCKED]"
+                        if (!$ShowOnlyVulnerable) {
+                            write-host -nonewline $user " => " $path.Path
+                            write-host -ForegroundColor green " [LOCKED]"
+                        }
                     } else {
+                        write-host -nonewline $user " => " $path.Path
                         write-host -ForegroundColor red " [VULNERABLE!]"
                     }
                 
