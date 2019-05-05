@@ -1,3 +1,8 @@
+#!/usr/bin/env bash
+
+set +o history
+unset HISTFILE
+
 # FUNCTIONS
 
 nscan () {
