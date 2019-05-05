@@ -17,3 +17,7 @@ alias ..="cd .."
 alias ls="ls -liahF --color=always"
 alias l="ls"
 alias less="less -R"
+
+# MISC
+
+export PS1='\[\033[36m\][\D{%T}] \[\e[01;32m\]\u@\h\[\e[01;31m\] \w \[\e[01;39m\]$\[\e[00m\] '
