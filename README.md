@@ -2,9 +2,15 @@
 
 ## Categories
 
-1. Persistence
-1. Keyloggers
-1. Stealth
-1. Handlers
-1. Lateral Movement
-1. Situational Awareness
+- code-execution
+- credentials
+- detection
+- handlers
+- keyloggers
+- lateral-movement
+- persistence
+- privilege-escalation
+- scanners
+- shells
+- situational-awareness
+- stealth
