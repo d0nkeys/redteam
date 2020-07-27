@@ -1,20 +1,25 @@
 #!/usr/bin/env bash
 
-# apt install libnotify-bin parallel
+apt install libnotify-bin parallel
 
-if [ ! $# -eq 1 ]
+mkdir -p scans
+
+if [ $# -eq 0 ]
   then
-    echo "usage: bash scan.parallel.sh <ips.txt>"
-	exit 1
+    echo "usage: bash scan.parallel.sh <ips.txt> [#jobs]"
+        exit 1
 fi
 
-echo "Starting TCP Scan"
+TARGETS=$1
+JOBS=${2:-""}
 
-parallel --ungroup -a $@ --max-args 1 'echo TCP: Job {#} of {= $_=total_jobs() =} - {} && mkdir -v -p scans/{} && notify-send "scan.parallel.sh" "beginning TCP - {#} / {= $_=total_jobs() =} - {}" && nmap -A -p- --reason -T4 -sT --script "(default or safe or vuln or discovery) and not broadcast" -oA scans/{}.tcp {}' &
+echo "Starting TCP Scan with $JOBS jobs"
 
-echo "Starting UDP Scan (top 50 ports)"
+parallel -j$JOBS --ungroup --bar -a $TARGETS --max-args 1 'echo TCP: Job {#} of {= $_=total_jobs() =} - {} && echo "scan.parallel.sh" "beginning TCP - {#} / {= $_=total_jobs() =} - {}" && nmap -A -p- -v --reason -T5 -sS --script "(default or safe or vuln or discovery) and not broadcast" -oA scans/{}.tcp {}' # &
 
-parallel --ungroup -a $@ --max-args 1 'echo UDP: Job {#} of {= $_=total_jobs() =} - {} && notify-send "scan.parallel.sh" "beginning UDP - {#} / {= $_=total_jobs() =} - {}" && nmap -sU -sV -T4 --top-ports 50 -oA scans/{}.udp {}' &
+echo "Starting UDP Scan with $JOBS jobs (top 50 ports)"
+
+parallel -j$JOBS --ungroup -a $TARGETS --max-args 1 'echo UDP: Job {#} of {= $_=total_jobs() =} - {} && echo "scan.parallel.sh" "beginning UDP - {#} / {= $_=total_jobs() =} - {}" && nmap -sU -sV -T4 --top-ports 50 -oA scans/{}.udp {}' &
 
 wait
 
